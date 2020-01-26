@@ -32,7 +32,7 @@ void deploy();
 void stack(int);
 void turnRight(float);
 void turnLeft(float);
-
+void bigZone(int);
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /*                              Autonomous Task                              */
@@ -40,7 +40,9 @@ void turnLeft(float);
 /*---------------------------------------------------------------------------*/
 
 void autonomous( void ) {
-  //hello, please put 1 if you want red and -1 if you want blue
+  //hello, please put 
+  //1 == red 
+  //-1 == blue
   stack(1);
 }
 
@@ -87,12 +89,12 @@ void usercontrol( void ) {
     if(Controller1.ButtonL2.pressing()){    
       rightLift.spin(vex::directionType::fwd, 60, vex::velocityUnits::pct);
       leftLift.spin(vex::directionType::fwd, 60, vex::velocityUnits::pct);
-      rotator.spin(vex::directionType::rev, 60, vex::velocityUnits::pct);    
+      rotator.spin(vex::directionType::rev, 35, vex::velocityUnits::pct);    
     }
     else if(Controller1.ButtonL1.pressing()){
      rotator.spin(vex::directionType::fwd, 40, vex::velocityUnits::pct);
-     rightLift.spin(vex::directionType::rev, 30, vex::velocityUnits::pct);  
-     leftLift.spin(vex::directionType::rev, 30, vex::velocityUnits::pct);
+     rightLift.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);  
+     leftLift.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);
     }
     else {  
       rightLift.stop(vex::brakeType::hold);
@@ -102,6 +104,7 @@ void usercontrol( void ) {
     if(Controller1.ButtonUp.pressing()){
       //deploys for drivver
       deploy();          
+      
     }
 
     vex::task::sleep(20); //Sleep the task for a short amount of time to prevent wasted resources. 

@@ -61,8 +61,14 @@ void deploy ( void ){
   rightDrive.rotateFor(200,vex::rotationUnits::deg,30,vex::velocityUnits::pct);
     
   //moves back
-  leftDrive.rotateFor(-200,vex::rotationUnits::deg,30,vex::velocityUnits::pct, false);
-  rightDrive.rotateFor(-200,vex::rotationUnits::deg,30,vex::velocityUnits::pct);
+  leftDrive.spin(vex::directionType::rev, 70, vex::velocityUnits::pct);
+  rightDrive.spin(vex::directionType::rev, 70, vex::velocityUnits::pct);
+
+  vex::task::sleep(400);
+
+  leftDrive.stop(coast);
+  rightDrive.stop(coast);
+
 
   //raises and lowers the lift to flip out rollers
   rightLift.spin(vex::directionType::rev, 40, vex::velocityUnits::pct);
@@ -90,8 +96,8 @@ void stack (int side){
   vex::task::sleep(800);
   
   //start the rollers
-  rollerLeft.spin(vex::directionType::fwd, 70, vex::velocityUnits::pct);
-  rollerRight.spin(vex::directionType::fwd, 70, vex::velocityUnits::pct);
+  rollerLeft.spin(vex::directionType::fwd, 80, vex::velocityUnits::pct);
+  rollerRight.spin(vex::directionType::fwd, 80, vex::velocityUnits::pct);
 
   //drive forward
   piDrive(1750, 40);
@@ -108,7 +114,7 @@ void stack (int side){
 
   //turns to face the goal
   if(side == 1){
-  turnRight(315);}
+  turnRight(305);}
   else{turnLeft(290);}
   vex::task::sleep(200);
 
@@ -116,11 +122,92 @@ void stack (int side){
   leftDrive.spin(vex::directionType::fwd, 70, vex::velocityUnits::pct);
   rightDrive.spin(vex::directionType::fwd, 70, vex::velocityUnits::pct);
 
-  vex::task::sleep(1700);
+  vex::task::sleep(2000);
+  
+  leftDrive.stop(coast);
+  rightDrive.stop(coast);
+
+  //place dwon stack
+  rotator.spin(vex::directionType::fwd, 40, vex::velocityUnits::pct); 
+    
+  rollerLeft.spin(vex::directionType::rev, 10, vex::velocityUnits::pct);
+  rollerRight.spin(vex::directionType::rev, 10, vex::velocityUnits::pct);
+
+  vex::task::sleep(2800);
+
+  rotator.spin(vex::directionType::fwd, 0, vex::velocityUnits::pct); 
+  
+  rollerLeft.spin(vex::directionType::rev, 20, vex::velocityUnits::pct);
+  rollerRight.spin(vex::directionType::rev, 20, vex::velocityUnits::pct);
+
+  vex::task::sleep(200);
+
+  //back up
+  leftDrive.rotateFor(-400,vex::rotationUnits::deg,40,vex::velocityUnits::pct, false);
+  rightDrive.rotateFor(-400,vex::rotationUnits::deg,40,vex::velocityUnits::pct);
+
+  //move tray down
+  rotator.spin(vex::directionType::rev, 70, vex::velocityUnits::pct);
+  vex::task::sleep(800);
+  rotator.spin(vex::directionType::rev, 0, vex::velocityUnits::pct);      
+
+  //stop rollers
+  rollerLeft.spin(vex::directionType::fwd, 0, vex::velocityUnits::pct);
+  rollerRight.spin(vex::directionType::fwd, 0, vex::velocityUnits::pct);
+
+}
+
+
+//test auton for the non stack side
+void bigZone(int side){
+  deploy();
+  piDrive(600,100);
+  //turnLeft(150);
+  /*deploy();
+  vex::task::sleep(800);
+  rollerLeft.spin(vex::directionType::fwd, 70, vex::velocityUnits::pct);
+  rollerRight.spin(vex::directionType::fwd, 70, vex::velocityUnits::pct);
+
+  piDrive(500, 50);
+  rollerLeft.stop(coast);
+  rollerRight.stop(coast);
+
+  vex::task::sleep(500);
+
+
+  if(side == 1){
+    turnLeft(200);
+  }
+  else{
+    turnRight(200);
+  }
+
+  vex::task::sleep(200);
+
+  rollerLeft.spin(vex::directionType::fwd, 70, vex::velocityUnits::pct);
+  rollerRight.spin(vex::directionType::fwd, 70, vex::velocityUnits::pct);
+
+  piDrive(900, 50);
+  rollerLeft.stop(coast);
+  rollerRight.stop(coast);
+
+  vex::task::sleep(200);
+  if(side == 1){
+    turnLeft(115);
+  }
+  else{
+    turnRight(115);
+  }
+  vex::task::sleep(200);
+    leftDrive.spin(vex::directionType:: fwd, 50, vex::velocityUnits::pct);
+  rightDrive.spin(vex::directionType:: fwd, 50, vex::velocityUnits::pct);
+  
+  vex::task::sleep(500);
 
   leftDrive.stop(coast);
   rightDrive.stop(coast);
 
+  
   //place dwon stack
   rotator.spin(vex::directionType::fwd, 40, vex::velocityUnits::pct); 
     
@@ -148,26 +235,6 @@ void stack (int side){
   rotator.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);
   vex::task::sleep(500);
   rotator.spin(vex::directionType::rev, 0, vex::velocityUnits::pct);      
-}
-
-
-//test auton for the non stack side
-void bigZone(){
-  deploy();
-  vex::task::sleep(1200);
-
-  leftDrive.spin(vex::directionType::rev, 70, vex::velocityUnits::pct);
-  rightDrive.spin(vex::directionType::rev, 70, vex::velocityUnits::pct);
-
-  vex::task::sleep(1000);
-
-  leftDrive.spin(vex::directionType:: fwd, 50, vex::velocityUnits::pct);
-  rightDrive.spin(vex::directionType:: fwd, 50, vex::velocityUnits::pct);
-  
-  vex::task::sleep(1000);
-
-  leftDrive.stop(hold);
-  rightDrive.stop(hold);
-
+  */
 }
 
