@@ -11,6 +11,8 @@ extern motor rollerLeft;
 extern motor rollerRight;
 extern motor rightLift;
 extern motor leftLift;
+extern controller Controller2;
+extern inertial gyroscope;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Text.

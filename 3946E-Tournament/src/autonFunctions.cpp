@@ -1,10 +1,14 @@
 #include "vex.h"
 #include "robot-config.h"
 
+/*void setRollers(int speed){
+
+}*/
+
 void piDrive (float distance, float max){
   //sets the constants
   float kP = .3;
-  float kI = .01;
+  float kI = 0.01;
   
   //calculates target by adding the distance to the current value of the encoder. this should account for the encoder not fully resetting
   float target = (distance) + leftDrive.rotation(vex::rotationUnits::deg);
@@ -45,10 +49,51 @@ void piDrive (float distance, float max){
     //helps with debugging.. prints the counter to screen. uncomment if you need to test.
     /*Controller1.Screen.clearScreen();
     Controller1.Screen.setCursor(1,1);          
-    Controller1.Screen.print("%d", counter);   
-    vex::task::sleep(2);*/       
+    Controller1.Screen.print("%f", error);   
+    vex::task::sleep(2);  */ 
+    
+        
     
   }
+  leftDrive.spin(vex::directionType::fwd,0,vex::velocityUnits::pct);
+  rightDrive.spin(vex::directionType::fwd,0,vex::velocityUnits::pct);
+
+}
+
+void pTurn (float target){
+
+  //this is to ensure that even if the gyro isn't at 0, the target will be the correct distance away
+  gyroscope.resetRotation();
+  
+  //sets the kp and the counter
+  float kP = 1.2;  
+  int counter = 0;
+
+  while (counter < 3){
+
+    //calculates error by subtracting the 
+    float error = target - gyroscope.rotation();
+    
+    //checks to see if the error is within a specific threshold to increment the counter
+    if(fabs(error) < 40){
+      counter ++;
+    }
+    else counter = 0;
+
+
+    //sets motor value equal to error * kp
+    float speed = kP * error;
+    leftDrive.spin(vex::directionType::fwd,speed,vex::velocityUnits::pct);
+    rightDrive.spin(vex::directionType::rev,speed,vex::velocityUnits::pct);
+
+ 
+    vex::task::sleep(2);
+
+  }
+  leftDrive.spin(vex::directionType::fwd,0,vex::velocityUnits::pct);
+  rightDrive.spin(vex::directionType::rev,0,vex::velocityUnits::pct);
+
+
 }
 
 void deploy ( void ){
@@ -100,7 +145,7 @@ void stack (int side){
   rollerRight.spin(vex::directionType::fwd, 80, vex::velocityUnits::pct);
 
   //drive forward
-  piDrive(1750, 40);
+  piDrive(1850, 40);
   vex::task::sleep(10);
 
   //stop rollers
@@ -114,8 +159,11 @@ void stack (int side){
 
   //turns to face the goal
   if(side == 1){
-  turnRight(305);}
-  else{turnLeft(290);}
+    pTurn(153);
+  }
+  else{
+    pTurn(-150);
+  }
   vex::task::sleep(200);
 
   //drive to goal -- uses time instead because we might not always reach same value
@@ -160,81 +208,53 @@ void stack (int side){
 
 //test auton for the non stack side
 void bigZone(int side){
+ 
   deploy();
-  piDrive(600,100);
-  //turnLeft(150);
-  /*deploy();
   vex::task::sleep(800);
-  rollerLeft.spin(vex::directionType::fwd, 70, vex::velocityUnits::pct);
-  rollerRight.spin(vex::directionType::fwd, 70, vex::velocityUnits::pct);
-
-  piDrive(500, 50);
-  rollerLeft.stop(coast);
-  rollerRight.stop(coast);
-
-  vex::task::sleep(500);
-
-
-  if(side == 1){
-    turnLeft(200);
-  }
-  else{
-    turnRight(200);
-  }
-
-  vex::task::sleep(200);
-
-  rollerLeft.spin(vex::directionType::fwd, 70, vex::velocityUnits::pct);
-  rollerRight.spin(vex::directionType::fwd, 70, vex::velocityUnits::pct);
-
-  piDrive(900, 50);
-  rollerLeft.stop(coast);
-  rollerRight.stop(coast);
-
-  vex::task::sleep(200);
-  if(side == 1){
-    turnLeft(115);
-  }
-  else{
-    turnRight(115);
-  }
-  vex::task::sleep(200);
-    leftDrive.spin(vex::directionType:: fwd, 50, vex::velocityUnits::pct);
-  rightDrive.spin(vex::directionType:: fwd, 50, vex::velocityUnits::pct);
   
-  vex::task::sleep(500);
+  //start the rollers
+  rollerLeft.spin(vex::directionType::fwd, 80, vex::velocityUnits::pct);
+  rollerRight.spin(vex::directionType::fwd, 80, vex::velocityUnits::pct);
 
+  //drive forward
+  piDrive(1800, 50);
+  vex::task::sleep(10);
+
+  //stop rollers
+  rollerLeft.stop(hold);
+  rollerRight.stop(hold);
+
+  piDrive(600, 100);
+  vex::task::sleep(10);
+
+  pTurn(-120);
+
+  rollerLeft.spin(vex::directionType::fwd, 60, vex::velocityUnits::pct);
+  rollerRight.spin(vex::directionType::fwd, 60, vex::velocityUnits::pct);
+
+  leftDrive.spin(vex::directionType::fwd, 100, vex::velocityUnits::pct);
+  rightDrive.spin(vex::directionType::fwd, 100, vex::velocityUnits::pct);
+
+  
+
+  vex::task::sleep(2500);
+
+  rotator.spin(vex::directionType::fwd, 32, vex::velocityUnits::pct);
+
+  vex::task::sleep(2100);
+  
   leftDrive.stop(coast);
   rightDrive.stop(coast);
 
-  
-  //place dwon stack
-  rotator.spin(vex::directionType::fwd, 40, vex::velocityUnits::pct); 
-    
-  rollerLeft.spin(vex::directionType::rev, 5, vex::velocityUnits::pct);
-  rollerRight.spin(vex::directionType::rev, 5, vex::velocityUnits::pct);
-
-  vex::task::sleep(2800);
-
-  rotator.spin(vex::directionType::fwd, 0, vex::velocityUnits::pct); 
-  
-  rollerLeft.spin(vex::directionType::rev, 35, vex::velocityUnits::pct);
-  rollerRight.spin(vex::directionType::rev, 35, vex::velocityUnits::pct);
-
   vex::task::sleep(200);
 
-  //back up
-  leftDrive.rotateFor(-400,vex::rotationUnits::deg,40,vex::velocityUnits::pct, false);
-  rightDrive.rotateFor(-400,vex::rotationUnits::deg,40,vex::velocityUnits::pct);
+  rollerLeft.spin(vex::directionType::rev, 15, vex::velocityUnits::pct);
+  rollerRight.spin(vex::directionType::rev, 15, vex::velocityUnits::pct);
 
-  //stop rollers
-  rollerLeft.spin(vex::directionType::fwd, 0, vex::velocityUnits::pct);
-  rollerRight.spin(vex::directionType::fwd, 0, vex::velocityUnits::pct);
+  //piDrive(-400,40);
 
-  //move tray down
-  rotator.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);
-  vex::task::sleep(500);
-  rotator.spin(vex::directionType::rev, 0, vex::velocityUnits::pct);      
-  */
+
+  rollerLeft.spin(vex::directionType::rev, 0, vex::velocityUnits::pct);
+  rollerRight.spin(vex::directionType::rev, 0, vex::velocityUnits::pct);
 }
 

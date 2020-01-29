@@ -1,16 +1,3 @@
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// Controller1          controller                    
-// leftDrive            motor         1               
-// rightDrive           motor         17              
-// rotator              motor         12              
-// rollerLeft           motor         6               
-// rollerRight          motor         2               
-// rightLift            motor         16              
-// leftLift             motor         7               
-// ---- END VEXCODE CONFIGURED DEVICES ----
-
 #include "vex.h"
 
 //Creates a competition object that allows access to Competition methods.
@@ -25,6 +12,13 @@ void pre_auton( void ) {
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
   vexcodeInit();
+
+  //calibrate the inertial sensor
+  gyroscope.calibrate();
+  while(gyroscope.isCalibrating()){
+    vex::task::sleep(10);
+  }
+
 }
 
 void piDrive(float, float);
@@ -33,6 +27,8 @@ void stack(int);
 void turnRight(float);
 void turnLeft(float);
 void bigZone(int);
+void pTurn(float);
+
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /*                              Autonomous Task                              */
@@ -43,7 +39,7 @@ void autonomous( void ) {
   //hello, please put 
   //1 == red 
   //-1 == blue
-  stack(1);
+  bigZone(1);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -52,23 +48,37 @@ void autonomous( void ) {
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
+
 void usercontrol( void ) {
+ 
+  float left;
+  float right;
+  float liftHeight;
+  
+  rotator.resetRotation();
+  leftLift.resetRotation();
+  rightLift.resetRotation();
+    
+
   // User control code here, inside the loop
   while (1) {
     //drive control
-    leftDrive.spin(vex::directionType::fwd, Controller1.Axis3.value(), vex::velocityUnits::pct); //(Axis3+Axis4)/2
-    rightDrive.spin(vex::directionType::fwd, Controller1.Axis2.value(), vex::velocityUnits::pct);//(Axis3-Axis4)/2        
+    left =  Controller1.Axis3.value() + Controller1.Axis1.value();
+    right =  Controller1.Axis3.value() - Controller1.Axis1.value();
+
+    leftDrive.spin(vex::directionType::fwd, left, vex::velocityUnits::pct); //(Axis3+Axis4)/2
+    rightDrive.spin(vex::directionType::fwd, right  , vex::velocityUnits::pct);//(Axis3-Axis4)/2        
         
       
     //rotator
-    if(Controller1.ButtonA.pressing()){
+    if(Controller2.ButtonA.pressing()){
      rotator.spin(vex::directionType::fwd, 20, vex::velocityUnits::pct);
     }
-    else if(Controller1.ButtonB.pressing()){
-     rotator.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);    
+    else if(Controller2.ButtonB.pressing() && rotator.rotation(vex::rotationUnits::deg) > -10){
+     rotator.spin(vex::directionType::rev, 50, vex::velocityUnits::pct); 
     }
     else{
-     rotator.stop(hold);
+     rotator.stop(hold); 
     }
         
     //rollers
@@ -76,45 +86,73 @@ void usercontrol( void ) {
       rollerLeft.spin(vex::directionType::fwd, 90, vex::velocityUnits::pct);
       rollerRight.spin(vex::directionType::fwd, 90, vex::velocityUnits::pct);
     }
+    else if (Controller2.ButtonR1.pressing()){
+      rollerLeft.spin(vex::directionType::fwd, 50, vex::velocityUnits::pct);
+      rollerRight.spin(vex::directionType::fwd, 50, vex::velocityUnits::pct);
+    }
     else if (Controller1.ButtonR2.pressing()){
      rollerLeft.spin(vex::directionType::rev, 90, vex::velocityUnits::pct);
      rollerRight.spin(vex::directionType::rev, 90, vex::velocityUnits::pct);
+    }
+    else if (Controller2.ButtonR2.pressing()){
+     rollerLeft.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);
+     rollerRight.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);
     }
     else{
      rollerLeft.stop(hold);
      rollerRight.stop(hold);
     }
         
+
     //lift
-    if(Controller1.ButtonL2.pressing()){    
+    liftHeight = (rightLift.rotation(vex::rotationUnits::deg) + leftLift.rotation(vex::rotationUnits::deg))/2.0;
+    
+    if(Controller2.ButtonL2.pressing()){    
       rightLift.spin(vex::directionType::fwd, 60, vex::velocityUnits::pct);
       leftLift.spin(vex::directionType::fwd, 60, vex::velocityUnits::pct);
-      rotator.spin(vex::directionType::rev, 35, vex::velocityUnits::pct);    
+      if(rotator.rotation(vex::rotationUnits::deg) > -10){
+        rotator.spin(vex::directionType::rev, 35, vex::velocityUnits::pct);    
+      }
     }
-    else if(Controller1.ButtonL1.pressing()){
+    else if(Controller2.ButtonL1.pressing()){
      rotator.spin(vex::directionType::fwd, 40, vex::velocityUnits::pct);
      rightLift.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);  
      leftLift.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);
     }
-    else {  
-      rightLift.stop(vex::brakeType::hold);
-      leftLift.stop(vex::brakeType::hold);    
-    } 
     
+    else if (liftHeight > -50) {  
+      rightLift.stop(vex::brakeType::coast);
+      leftLift.stop(vex::brakeType::coast);    
+    } 
+    else {
+      rightLift.stop(vex::brakeType::brake);
+      leftLift.stop(vex::brakeType::brake);    
+    }
+
     if(Controller1.ButtonUp.pressing()){
       //deploys for drivver
-      deploy();          
+      deploy();
+         
       
     }
 
-    vex::task::sleep(20); //Sleep the task for a short amount of time to prevent wasted resources. 
+      
+    
+    Controller1.Screen.clearScreen();
+    Controller1.Screen.setCursor(1,1);          
+    Controller1.Screen.print("Main Controller");
+
+    Controller2.Screen.clearScreen();
+    Controller2.Screen.setCursor(1,1);          
+    Controller2.Screen.print("Partner");
+    
+  
+    vex::task::sleep(5); //Sleep the task for a short amount of time to prevent wasted resources. 
   
   }
 }
 
-//
 // Main will set up the competition functions and callbacks.
-//
 int main() {
     
     //Run the pre-autonomous function. 
