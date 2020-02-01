@@ -4,13 +4,13 @@ extern brain Brain;
 
 // VEXcode devices
 extern controller Controller1;
-extern motor leftDrive;
-extern motor rightDrive;
+extern motor lDrive;
+extern motor rDrive;
 extern motor rotator;
-extern motor rollerLeft;
-extern motor rollerRight;
-extern motor rightLift;
-extern motor leftLift;
+extern motor lRoller;
+extern motor rRoller;
+extern motor rLift;
+extern motor lLift;
 extern controller Controller2;
 extern inertial gyroscope;
 
