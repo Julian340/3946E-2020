@@ -1,101 +1,3 @@
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// Controller1          controller                    
-// lDrive               motor         1               
-// rDrive               motor         17              
-// rotator              motor         12              
-// lRoller              motor         6               
-// rRoller              motor         2               
-// rLift                motor         16              
-// lLift                motor         7               
-// Controller2          controller                    
-// gyroscope            inertial      19              
-// ---- END VEXCODE CONFIGURED DEVICES ----
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// Controller1          controller                    
-// lDrive               motor         1               
-// rDrive               motor         17              
-// rotator              motor         12              
-// lRoller              motor         6               
-// rRoller              motor         2               
-// rLift                motor         16              
-// lLift                motor         7               
-// Controller2          controller                    
-// gyroscope            inertial      20              
-// ---- END VEXCODE CONFIGURED DEVICES ----
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// Controller1          controller                    
-// lDrive               motor         1               
-// rDrive               motor         17              
-// rotator              motor         12              
-// lRoller              motor         6               
-// rRoller              motor         2               
-// rLift                motor         16              
-// lLift             motor         7               
-// Controller2          controller                    
-// gyroscope            inertial      20              
-// ---- END VEXCODE CONFIGURED DEVICES ----
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// Controller1          controller                    
-// lDrive               motor         1               
-// rDrive               motor         17              
-// rotator              motor         12              
-// lRoller              motor         6               
-// rRoller              motor         2               
-// rLift            motor         16              
-// lLift             motor         7               
-// Controller2          controller                    
-// gyroscope            inertial      20              
-// ---- END VEXCODE CONFIGURED DEVICES ----
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// Controller1          controller                    
-// lDrive               motor         1               
-// rDrive               motor         17              
-// rotator              motor         12              
-// lRoller              motor         6               
-// rRoller          motor         2               
-// rLift            motor         16              
-// lLift             motor         7               
-// Controller2          controller                    
-// gyroscope            inertial      20              
-// ---- END VEXCODE CONFIGURED DEVICES ----
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// Controller1          controller                    
-// lDrive               motor         1               
-// rDrive               motor         17              
-// rotator              motor         12              
-// lRoller           motor         6               
-// rRoller          motor         2               
-// rLift            motor         16              
-// lLift             motor         7               
-// Controller2          controller                    
-// gyroscope            inertial      20              
-// ---- END VEXCODE CONFIGURED DEVICES ----
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// Controller1          controller                    
-// lDrive               motor         1               
-// rDrive           motor         17              
-// rotator              motor         12              
-// lRoller           motor         6               
-// rRoller          motor         2               
-// rLift            motor         16              
-// lLift             motor         7               
-// Controller2          controller                    
-// gyroscope            inertial      20              
-// ---- END VEXCODE CONFIGURED DEVICES ----
 #include "vex.h"
 
 //Creates a competition object that allows access to Competition methods.
@@ -112,10 +14,11 @@ void stack(int);
 void turnRight(float);
 void turnLeft(float);
 void bigZone(int);
-void pTurn(float);
+void pTurn(float, int);
+void pStrafe(float, int);
 void smallZone(int);
-void setVal(float);
-float getVal();
+void small(int);
+void prog();
 
 void pre_auton( void ) {
   // All activities that occur before the competition starts
@@ -128,7 +31,6 @@ void pre_auton( void ) {
    vex::task::sleep(10);
   }
   rotator.resetRotation();
-  setVal(rotator.rotation(vex::rotationUnits::deg));
 
 
 }
@@ -146,7 +48,7 @@ void autonomous( void ) {
   //hello, please put 
   //1 == red 
   //0 == blue
-  stack(1);
+  prog();
 
 }
 
@@ -160,11 +62,14 @@ void autonomous( void ) {
 void usercontrol( void ) {
  
   //rotator.spin(vex::directionType::rev, 40, vex::velocityUnits::pct);
-  //vex::task::sleep(1000);
+  //vex::ta,,sk::sleep(1000);
   //rotator.resetRotation();
 
   float left;
   float right;
+  float strafe;
+
+
   float liftHeight;
   int rotatorTarget = 1300;
   int rotatorMax = 60;
@@ -187,10 +92,11 @@ void usercontrol( void ) {
     //drive control
     left =  Controller1.Axis3.value() + .7 * Controller1.Axis1.value();
     right =  Controller1.Axis3.value() - .7 * Controller1.Axis1.value();
+    strafe = Controller1.Axis4.value();
 
     lDrive.spin(vex::directionType::fwd, left, vex::velocityUnits::pct); //(Axis3+Axis4)/2
-    rDrive.spin(vex::directionType::fwd, right  , vex::velocityUnits::pct);//(Axis3-Axis4)/2        
-        
+    rDrive.spin(vex::directionType::fwd, right  , vex::velocityUnits::pct);//(Axis3-Axis4)/2         
+    mDrive.spin(vex::directionType::fwd, strafe, vex::velocityUnits::pct);    
       
     //rotator
     if(Controller2.ButtonA.pressing()){
@@ -241,12 +147,8 @@ void usercontrol( void ) {
     if(Controller2.ButtonL2.pressing()){    
       rLift.spin(vex::directionType::fwd, 60, vex::velocityUnits::pct);
       lLift.spin(vex::directionType::fwd, 60, vex::velocityUnits::pct);
-      if(rotator.rotation(vex::rotationUnits::deg) > -10){
-        rotator.spin(vex::directionType::rev, 35, vex::velocityUnits::pct);    
-      }
     }
     else if(Controller2.ButtonL1.pressing()){
-     rotator.spin(vex::directionType::fwd, 40, vex::velocityUnits::pct);
      rLift.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);  
      lLift.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);
     }

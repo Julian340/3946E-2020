@@ -13,6 +13,7 @@ extern motor rLift;
 extern motor lLift;
 extern controller Controller2;
 extern inertial gyroscope;
+extern motor mDrive;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Text.

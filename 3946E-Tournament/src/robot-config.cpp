@@ -18,6 +18,7 @@ motor rLift = motor(PORT16, ratio18_1, false);
 motor lLift = motor(PORT7, ratio18_1, true);
 controller Controller2 = controller(partner);
 inertial gyroscope = inertial(PORT19);
+motor mDrive = motor(PORT13, ratio36_1, true);
 
 // VEXcode generated functions
 // define variable for remote controller enable/disable
