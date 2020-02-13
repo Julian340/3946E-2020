@@ -45,10 +45,17 @@ void pre_auton( void ) {
 
 void autonomous( void ) {
   
-  //hello, please put 
-  //1 == red 
-  //0 == blue
-  prog();
+  //autons
+    //stack([RED/BLUE]) --> does the standard 5 cube stack in unprotected zone
+    //bigZone([RED/BLUE]) --> goes for the risky 5-7 stack in the big zone
+    //smallZone([RED/BLUE]) --> tries scoring 3 in the big zone (be careful of knocking cubes to other side)
+    //prog() --> runs prog (ONLY ON BLUE SIDE)
+
+  //INSIDE THE PARENTHESIS, replace the [RED/BLUE] with 
+    //1 == red 
+    //0 == blue
+
+  stack(1);
 
 }
 
@@ -61,14 +68,9 @@ void autonomous( void ) {
 
 void usercontrol( void ) {
  
-  //rotator.spin(vex::directionType::rev, 40, vex::velocityUnits::pct);
-  //vex::ta,,sk::sleep(1000);
-  //rotator.resetRotation();
-
   float left;
   float right;
   float strafe;
-
 
   float liftHeight;
   int rotatorTarget = 1300;
